@@ -8,10 +8,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -27,6 +30,9 @@ public class MainActivity extends AppCompatActivity
 
     // main power switch
     protected Switch m_switchOnOff;
+    protected SeekBar m_sliderTemperature;
+    protected SeekBar m_sliderFanSpeed;
+    protected CheckBox m_checkboxFanAuto;
 
     // layout containing params
     protected LinearLayout m_layoutParam;
@@ -44,22 +50,52 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //-------------------------------------------------------------------------------
+        // init members
         m_daikinModel = new DaikinModel();
         m_httpController = new DaikinHTTPController();
 
         m_switchOnOff = (Switch)findViewById(R.id.switch_onoff);
-        m_layoutParam = (LinearLayout)findViewById(R.id.layout_params);
+        m_sliderTemperature = (SeekBar) findViewById(R.id.slider_temp);
+        m_sliderFanSpeed = (SeekBar) findViewById(R.id.slider_fan_speed);
+        m_layoutParam = (LinearLayout) findViewById(R.id.layout_params);
+        m_checkboxFanAuto = (CheckBox) findViewById(R.id.checkbox_fan_auto);
         m_mainLayout = (LinearLayout)findViewById(R.id.layout_main);
         m_waitConnectionLayout = (LinearLayout)findViewById(R.id.layout_wait_connection);
         m_txtTargetTemp = (TextView)findViewById(R.id.txt_target_temp);
         m_txtCurTemp = (TextView)findViewById(R.id.txt_cur_temp);
 
 
+        //-------------------------------------------------------------------------------
+        // plug event
         m_switchOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
         {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 MainActivity.this.m_daikinModel.status = isChecked ? DaikinModel.DaikinParamValue.Status.ON : DaikinModel.DaikinParamValue.Status.OFF;
                 new SendParams(MainActivity.this.m_daikinModel, MainActivity.this.m_httpController, MainActivity.this).execute();
+            }
+        });
+
+        m_sliderTemperature.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                MainActivity.this.m_daikinModel.targetTemp = getSliderValue(seekBar);
+                new SendParams(MainActivity.this.m_daikinModel, MainActivity.this.m_httpController, MainActivity.this).execute();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) { }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
+                m_txtTargetTemp.setText(getSliderValue(seekBar).toString() + "°");
+            }
+
+            private Integer getSliderValue(SeekBar seekBar) {
+                float minTemp = 18;
+                float maxTemp = 30;
+                float temp = minTemp + (maxTemp - minTemp) * (seekBar.getProgress()/100.0f);
+                return new Integer(Math.round(temp));
             }
         });
 
