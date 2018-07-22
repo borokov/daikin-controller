@@ -30,6 +30,8 @@ public class MainActivity extends AppCompatActivity
 
     // layout containing params
     protected LinearLayout m_layoutParam;
+    protected LinearLayout m_waitConnectionLayout;
+    protected LinearLayout m_mainLayout;
 
     protected TextView m_txtTargetTemp;
     protected TextView m_txtCurTemp;
@@ -47,6 +49,8 @@ public class MainActivity extends AppCompatActivity
 
         m_switchOnOff = (Switch)findViewById(R.id.switch_onoff);
         m_layoutParam = (LinearLayout)findViewById(R.id.layout_params);
+        m_mainLayout = (LinearLayout)findViewById(R.id.layout_main);
+        m_waitConnectionLayout = (LinearLayout)findViewById(R.id.layout_wait_connection);
         m_txtTargetTemp = (TextView)findViewById(R.id.txt_target_temp);
         m_txtCurTemp = (TextView)findViewById(R.id.txt_cur_temp);
 
@@ -90,7 +94,8 @@ public class MainActivity extends AppCompatActivity
         m_layoutParam.setVisibility(daikinModel.status == DaikinModel.DaikinParamValue.Status.ON ? View.VISIBLE : View.GONE);
         m_txtTargetTemp.setText( new Integer(Math.round(daikinModel.targetTemp)).toString() + "°" );
         m_txtCurTemp.setText( new Integer(Math.round(daikinModel.currentTemp)).toString() + "°" );
-
+        m_mainLayout.setVisibility(View.VISIBLE);
+        m_waitConnectionLayout.setVisibility(View.GONE);
     }
 }
 

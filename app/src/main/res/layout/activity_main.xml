@@ -11,9 +11,33 @@
         layout="@layout/content_main" />
 
     <LinearLayout
+        android:id="@+id/layout_wait_connection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Connecting to device..."
+            android:textAlignment="center" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:minHeight="100dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:visibility="gone"
         app:layout_anchor="@+id/include"
         app:layout_anchorGravity="top|center">
 
