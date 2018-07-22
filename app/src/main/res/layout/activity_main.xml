@@ -123,7 +123,7 @@
             </RadioGroup>
 
             <SeekBar
-                android:id="@+id/seekBar"
+                android:id="@+id/slider_temp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
@@ -133,14 +133,22 @@
                 app:layout_anchorGravity="left|center" />
 
             <TextView
-                android:id="@+id/textView6"
+                android:id="@+id/txt_target_temp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="26 °"
+                android:layout_weight="1"
+                android:text="26°"
                 android:textAlignment="center"
                 android:textSize="36sp" />
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/txt_cur_temp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="25°"
+            android:textAlignment="center" />
 
     </LinearLayout>
 

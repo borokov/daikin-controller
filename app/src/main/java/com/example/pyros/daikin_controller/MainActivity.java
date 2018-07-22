@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -30,6 +31,9 @@ public class MainActivity extends AppCompatActivity
     // layout containing params
     protected LinearLayout m_layoutParam;
 
+    protected TextView m_txtTargetTemp;
+    protected TextView m_txtCurTemp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,8 +42,13 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        m_switchOnOff = (Switch) findViewById(R.id.switch_onoff);
-        m_layoutParam = (LinearLayout) findViewById(R.id.layout_params);
+        m_daikinModel = new DaikinModel();
+        m_httpController = new DaikinHTTPController();
+
+        m_switchOnOff = (Switch)findViewById(R.id.switch_onoff);
+        m_layoutParam = (LinearLayout)findViewById(R.id.layout_params);
+        m_txtTargetTemp = (TextView)findViewById(R.id.txt_target_temp);
+        m_txtCurTemp = (TextView)findViewById(R.id.txt_cur_temp);
 
 
         m_switchOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
@@ -49,9 +58,6 @@ public class MainActivity extends AppCompatActivity
                 new SendParams(MainActivity.this.m_daikinModel, MainActivity.this.m_httpController, MainActivity.this).execute();
             }
         });
-
-        m_daikinModel = new DaikinModel();
-        m_httpController = new DaikinHTTPController();
 
         new GetParams(m_daikinModel, m_httpController, this).execute();
     }
@@ -82,6 +88,9 @@ public class MainActivity extends AppCompatActivity
     {
         m_switchOnOff.setChecked(daikinModel.status == DaikinModel.DaikinParamValue.Status.ON);
         m_layoutParam.setVisibility(daikinModel.status == DaikinModel.DaikinParamValue.Status.ON ? View.VISIBLE : View.GONE);
+        m_txtTargetTemp.setText( new Integer(Math.round(daikinModel.targetTemp)).toString() + "°" );
+        m_txtCurTemp.setText( new Integer(Math.round(daikinModel.currentTemp)).toString() + "°" );
+
     }
 }
 
