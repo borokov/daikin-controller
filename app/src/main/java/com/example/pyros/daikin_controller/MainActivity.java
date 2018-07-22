@@ -35,6 +35,9 @@ public class MainActivity extends AppCompatActivity
     protected TextView m_txtTargetTemp;
     protected TextView m_txtCurTemp;
 
+    final float MIN_SLIDER_TEMP = 18;
+    final float MAX_SLIDER_TEMP = 30;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,9 +88,8 @@ public class MainActivity extends AppCompatActivity
             }
 
             private Integer getSliderValue(SeekBar seekBar) {
-                float minTemp = 18;
-                float maxTemp = 30;
-                float temp = minTemp + (maxTemp - minTemp) * (seekBar.getProgress()/100.0f);
+
+                float temp = MIN_SLIDER_TEMP + (MAX_SLIDER_TEMP - MIN_SLIDER_TEMP) * (seekBar.getProgress()/100.0f);
                 return new Integer(Math.round(temp));
             }
         });
@@ -125,6 +127,9 @@ public class MainActivity extends AppCompatActivity
         m_txtCurTemp.setText( new Integer(Math.round(daikinModel.currentTemp)).toString() + "°" );
         m_mainLayout.setVisibility(View.VISIBLE);
         m_waitConnectionLayout.setVisibility(View.GONE);
+
+        int progress = Math.round( 100*(daikinModel.targetTemp - (float)MIN_SLIDER_TEMP) / ((float)MAX_SLIDER_TEMP - (float)MIN_SLIDER_TEMP) );
+        m_sliderTemperature.setProgress(progress);
     }
 }
 
