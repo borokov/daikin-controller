@@ -3,7 +3,6 @@ package com.example.pyros.daikin_controller;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -20,34 +19,41 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+{
+    protected DaikinModel m_daikinModel;
+    protected DaikinHTTPController m_httpController;
+
+    // main power switch
+    protected Switch m_switchOnOff;
+
+    // layout containing params
+    protected LinearLayout m_layoutParam;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Switch switchOnOff = (Switch) findViewById(R.id.switch_onoff);
-        switchOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        m_switchOnOff = (Switch) findViewById(R.id.switch_onoff);
+        m_layoutParam = (LinearLayout) findViewById(R.id.layout_params);
+
+
+        m_switchOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // do something, the isChecked will be
-                // true if the switch is in the On position
-                LinearLayout layoutParams = (LinearLayout) findViewById(R.id.layout_params);
-                layoutParams.setVisibility( isChecked ? View.VISIBLE : View.GONE );
-
-
+                MainActivity.this.m_daikinModel.status = isChecked ? DaikinModel.DaikinParamValue.Status.ON : DaikinModel.DaikinParamValue.Status.OFF;
+                new SendParams(MainActivity.this.m_daikinModel, MainActivity.this.m_httpController, MainActivity.this).execute();
             }
         });
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new SendParams().execute();
-            }
-        });
+        m_daikinModel = new DaikinModel();
+        m_httpController = new DaikinHTTPController();
+
+        new GetParams(m_daikinModel, m_httpController, this).execute();
     }
 
     @Override
@@ -71,80 +77,64 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void sync(DaikinModel daikinModel)
+    {
+        m_switchOnOff.setChecked(daikinModel.status == DaikinModel.DaikinParamValue.Status.ON);
+        m_layoutParam.setVisibility(daikinModel.status == DaikinModel.DaikinParamValue.Status.ON ? View.VISIBLE : View.GONE);
+    }
 }
 
-class SendParams extends AsyncTask<Void,Void,Void>
+
+class GetParams extends AsyncTask<Void,Void,Void>
 {
-
-    protected void onPreExecute() {
-        // Snackbar.make(view, "Request started", Snackbar.LENGTH_LONG)
-        //         .setAction("Action", null).show();
-
+    GetParams(DaikinModel daikinModel_, DaikinHTTPController httpController_, MainActivity mainActivity_)
+    {
+        m_daikinModel = daikinModel_;
+        m_httpController = httpController_;
+        m_mainActivity = mainActivity_;
     }
 
-    public static String excutePost(String targetURL, String urlParameters)
-    {
-        URL url;
-        HttpURLConnection connection = null;
-        try {
-            //Create connection
-            url = new URL(targetURL);
-            connection = (HttpURLConnection)url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type",
-                    "application/x-www-form-urlencoded");
-
-            connection.setRequestProperty("Content-Length", "" +
-                    Integer.toString(urlParameters.getBytes().length));
-            connection.setRequestProperty("Content-Language", "en-US");
-
-            connection.setUseCaches (false);
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-
-            //Send request
-            DataOutputStream wr = new DataOutputStream (
-                    connection.getOutputStream ());
-            wr.writeBytes (urlParameters);
-            wr.flush ();
-            wr.close ();
-
-            //Get Response
-            InputStream is = connection.getInputStream();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            String line;
-            StringBuffer response = new StringBuffer();
-            while((line = rd.readLine()) != null) {
-                response.append(line);
-                response.append('\r');
-            }
-            rd.close();
-            return response.toString();
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            return null;
-
-        } finally {
-
-            if(connection != null) {
-                connection.disconnect();
-            }
-        }
+    protected void onPreExecute() {
     }
 
     protected Void doInBackground(Void... param) {
-        String urlParameters = "pow=1&mode=3&stemp=25&shum=0&f_rate=A&f_dir=0";
-        excutePost("http://192.168.1.15/aircon/set_control_info?pow=1&mode=3&stemp=25&shum=0&f_rate=A&f_dir=0", "");
-
+        m_httpController.getParams(m_daikinModel);
         return null;
     }
 
+    protected void onPostExecute(Void result) {
+        m_mainActivity.sync(m_daikinModel);
+    }
 
+    private DaikinModel m_daikinModel;
+    private DaikinHTTPController m_httpController;
+    private MainActivity m_mainActivity;
+}
+
+
+class SendParams extends AsyncTask<Void,Void,Void>
+{
+    SendParams(DaikinModel daikinModel_, DaikinHTTPController httpController_, MainActivity mainActivity_)
+    {
+        m_daikinModel = daikinModel_;
+        m_httpController = httpController_;
+        m_mainActivity = mainActivity_;
+    }
+
+    protected void onPreExecute() {
+    }
+
+    protected Void doInBackground(Void... param) {
+        m_httpController.sendParams(m_daikinModel);
+        return null;
+    }
 
     protected void onPostExecute(Void result) {
-        // Snackbar.make(view, "Request ended", Snackbar.LENGTH_LONG)
-        //         .setAction("Action", null).show();
+        m_mainActivity.sync(m_daikinModel);
     }
+
+    private DaikinModel m_daikinModel;
+    private DaikinHTTPController m_httpController;
+    private MainActivity m_mainActivity;
 }
