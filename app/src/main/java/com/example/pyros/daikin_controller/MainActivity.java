@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -34,6 +35,8 @@ public class MainActivity extends AppCompatActivity
     protected TextView m_txtTargetTemp;
     protected TextView m_txtCurTemp;
     protected TextView m_txtFanSpeed;
+
+    protected RadioGroup m_rbMode;
 
     final float MIN_SLIDER_TEMP = 18;
     final float MAX_SLIDER_TEMP = 30;
@@ -60,6 +63,7 @@ public class MainActivity extends AppCompatActivity
         m_txtTargetTemp = (TextView)findViewById(R.id.txt_target_temp);
         m_txtCurTemp = (TextView)findViewById(R.id.txt_cur_temp);
         m_txtFanSpeed = (TextView)findViewById(R.id.txt_fanSpeed);
+        m_rbMode = (RadioGroup) findViewById(R.id.rb_mode);
 
         //-------------------------------------------------------------------------------
         // plug event
@@ -67,6 +71,24 @@ public class MainActivity extends AppCompatActivity
         {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 MainActivity.this.m_daikinModel.status = isChecked ? DaikinModel.DaikinParamValue.Status.ON : DaikinModel.DaikinParamValue.Status.OFF;
+                new SendParams(MainActivity.this.m_daikinModel, MainActivity.this.m_httpController, MainActivity.this).execute();
+            }
+        });
+
+        m_rbMode.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                switch (i) {
+                    case 3:
+                        MainActivity.this.m_daikinModel.mode = DaikinModel.DaikinParamValue.Mode.COLD;
+                        break;
+                    case 4:
+                        MainActivity.this.m_daikinModel.mode = DaikinModel.DaikinParamValue.Mode.HOT;
+                        break;
+                    case 6:
+                        MainActivity.this.m_daikinModel.mode = DaikinModel.DaikinParamValue.Mode.FAN;
+                        break;
+                }
                 new SendParams(MainActivity.this.m_daikinModel, MainActivity.this.m_httpController, MainActivity.this).execute();
             }
         });
@@ -219,6 +241,19 @@ public class MainActivity extends AppCompatActivity
             case lvl_5:
                 m_txtFanSpeed.setText("Jean-claude SOUFFLERIE !!!");
                 m_sliderFanSpeed.setProgress(6);
+                break;
+        }
+
+        switch (daikinModel.mode)
+        {
+            case HOT:
+                m_rbMode.check(m_rbMode.getChildAt(0).getId());
+                break;
+            case COLD:
+                m_rbMode.check(m_rbMode.getChildAt(1).getId());
+                break;
+            case FAN:
+                m_rbMode.check(m_rbMode.getChildAt(2).getId());
                 break;
         }
 
