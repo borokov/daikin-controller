@@ -25,7 +25,6 @@ public class MainActivity extends AppCompatActivity
     protected Switch m_switchOnOff;
     protected SeekBar m_sliderTemperature;
     protected SeekBar m_sliderFanSpeed;
-    protected CheckBox m_checkboxFanAuto;
 
     // layout containing params
     protected LinearLayout m_layoutParam;
@@ -34,6 +33,7 @@ public class MainActivity extends AppCompatActivity
 
     protected TextView m_txtTargetTemp;
     protected TextView m_txtCurTemp;
+    protected TextView m_txtFanSpeed;
 
     final float MIN_SLIDER_TEMP = 18;
     final float MAX_SLIDER_TEMP = 30;
@@ -55,12 +55,11 @@ public class MainActivity extends AppCompatActivity
         m_sliderTemperature = (SeekBar) findViewById(R.id.slider_temp);
         m_sliderFanSpeed = (SeekBar) findViewById(R.id.slider_fan_speed);
         m_layoutParam = (LinearLayout) findViewById(R.id.layout_params);
-        m_checkboxFanAuto = (CheckBox) findViewById(R.id.checkbox_fan_auto);
         m_mainLayout = (LinearLayout)findViewById(R.id.layout_main);
         m_waitConnectionLayout = (LinearLayout)findViewById(R.id.layout_wait_connection);
         m_txtTargetTemp = (TextView)findViewById(R.id.txt_target_temp);
         m_txtCurTemp = (TextView)findViewById(R.id.txt_cur_temp);
-
+        m_txtFanSpeed = (TextView)findViewById(R.id.txt_fanSpeed);
 
         //-------------------------------------------------------------------------------
         // plug event
@@ -70,6 +69,69 @@ public class MainActivity extends AppCompatActivity
                 MainActivity.this.m_daikinModel.status = isChecked ? DaikinModel.DaikinParamValue.Status.ON : DaikinModel.DaikinParamValue.Status.OFF;
                 new SendParams(MainActivity.this.m_daikinModel, MainActivity.this.m_httpController, MainActivity.this).execute();
             }
+        });
+
+        m_sliderFanSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                switch ( seekBar.getProgress() )
+                {
+                    case 0:
+                        MainActivity.this.m_daikinModel.fanRate = DaikinModel.DaikinParamValue.FanRate.AUTO;
+                        break;
+                    case 1:
+                        MainActivity.this.m_daikinModel.fanRate = DaikinModel.DaikinParamValue.FanRate.SILENCE;
+                        break;
+                    case 2:
+                        MainActivity.this.m_daikinModel.fanRate = DaikinModel.DaikinParamValue.FanRate.lvl_1;
+                        break;
+                    case 3:
+                        MainActivity.this.m_daikinModel.fanRate = DaikinModel.DaikinParamValue.FanRate.lvl_2;
+                        break;
+                    case 4:
+                        MainActivity.this.m_daikinModel.fanRate = DaikinModel.DaikinParamValue.FanRate.lvl_3;
+                        break;
+                    case 5:
+                        MainActivity.this.m_daikinModel.fanRate = DaikinModel.DaikinParamValue.FanRate.lvl_4;
+                        break;
+                    case 6:
+                        MainActivity.this.m_daikinModel.fanRate = DaikinModel.DaikinParamValue.FanRate.lvl_5;
+                        break;
+                }
+                new SendParams(MainActivity.this.m_daikinModel, MainActivity.this.m_httpController, MainActivity.this).execute();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) { }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
+                switch ( progress )
+                {
+                    case 0:
+                        m_txtFanSpeed.setText("Auto");
+                        break;
+                    case 1:
+                        m_txtFanSpeed.setText("Quiet");
+                        break;
+                    case 2:
+                        m_txtFanSpeed.setText("Slow");
+                        break;
+                    case 3:
+                        m_txtFanSpeed.setText("Medium");
+                        break;
+                    case 4:
+                        m_txtFanSpeed.setText("High");
+                        break;
+                    case 5:
+                        m_txtFanSpeed.setText("Higher");
+                        break;
+                    case 6:
+                        m_txtFanSpeed.setText("Jean-claude SOUFFLERIE !!!");
+                        break;
+                }
+            }
+
         });
 
         m_sliderTemperature.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -127,6 +189,38 @@ public class MainActivity extends AppCompatActivity
         m_txtCurTemp.setText( new Integer(Math.round(daikinModel.currentTemp)).toString() + "°" );
         m_mainLayout.setVisibility(View.VISIBLE);
         m_waitConnectionLayout.setVisibility(View.GONE);
+
+        switch ( daikinModel.fanRate )
+        {
+            case AUTO:
+                m_txtFanSpeed.setText("Auto");
+                m_sliderFanSpeed.setProgress(0);
+                break;
+            case SILENCE:
+                m_txtFanSpeed.setText("Quiet");
+                m_sliderFanSpeed.setProgress(1);
+                break;
+            case lvl_1:
+                m_txtFanSpeed.setText("Slow");
+                m_sliderFanSpeed.setProgress(2);
+                break;
+            case lvl_2:
+                m_txtFanSpeed.setText("Medium");
+                m_sliderFanSpeed.setProgress(3);
+                break;
+            case lvl_3:
+                m_txtFanSpeed.setText("High");
+                m_sliderFanSpeed.setProgress(4);
+                break;
+            case lvl_4:
+                m_txtFanSpeed.setText("Higher");
+                m_sliderFanSpeed.setProgress(5);
+                break;
+            case lvl_5:
+                m_txtFanSpeed.setText("Jean-claude SOUFFLERIE !!!");
+                m_sliderFanSpeed.setProgress(6);
+                break;
+        }
 
         int progress = Math.round( 100*(daikinModel.targetTemp - (float)MIN_SLIDER_TEMP) / ((float)MAX_SLIDER_TEMP - (float)MIN_SLIDER_TEMP) );
         m_sliderTemperature.setProgress(progress);
