@@ -1,5 +1,7 @@
 package com.example.pyros.daikin_controller;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -40,28 +42,32 @@ public class DaikinHTTPController
             StringTokenizer tokenizer1 = new StringTokenizer(token, "=");
             String paramName = tokenizer1.nextElement().toString();
             String paramValue = tokenizer1.hasMoreElements() ? tokenizer1.nextElement().toString() : "";
-            switch (paramName) {
-                case "pow":
-                    params.setStatus(paramValue);
-                    break;
-                case "mode":
-                    params.setMode(paramValue);
-                    break;
-                case "stemp":
-                    params.targetTemp = Float.parseFloat(paramValue);
-                    break;
-                case "shum":
-                    params.targetHumidity = Float.parseFloat(paramValue);
-                    break;
-                case "f_rate":
-                    params.setFanRate(paramValue);
-                    break;
-                case "f_dir":
-                    params.setFanDir(paramValue);
-                    break;
-                case "b_stemp":
-                    params.currentTemp = Float.parseFloat(paramValue);
-                    break;
+            try {
+                switch (paramName) {
+                    case "pow":
+                        params.setStatus(paramValue);
+                        break;
+                    case "mode":
+                        params.setMode(paramValue);
+                        break;
+                    case "stemp":
+                        params.targetTemp = Float.parseFloat(paramValue);
+                        break;
+                    case "shum":
+                        params.targetHumidity = Float.parseFloat(paramValue);
+                        break;
+                    case "f_rate":
+                        params.setFanRate(paramValue);
+                        break;
+                    case "f_dir":
+                        params.setFanDir(paramValue);
+                        break;
+                    case "b_stemp":
+                        params.currentTemp = Float.parseFloat(paramValue);
+                        break;
+                }
+            } catch (Exception e) {
+                Log.e("getParams()", e.getMessage());
             }
         }
     }
