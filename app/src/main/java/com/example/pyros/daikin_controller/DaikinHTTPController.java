@@ -42,6 +42,11 @@ public class DaikinHTTPController
             StringTokenizer tokenizer1 = new StringTokenizer(token, "=");
             String paramName = tokenizer1.nextElement().toString();
             String paramValue = tokenizer1.hasMoreElements() ? tokenizer1.nextElement().toString() : "";
+
+            // undefined values are "--". In that case, go to next value.
+            if ( paramValue.equals("--") )
+                continue;
+
             try {
                 switch (paramName) {
                     case "pow":
