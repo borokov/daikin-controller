@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -78,14 +79,17 @@ public class MainActivity extends AppCompatActivity
         m_rbMode.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                switch (i) {
-                    case 3:
-                        MainActivity.this.m_daikinModel.mode = DaikinModel.DaikinParamValue.Mode.COLD;
-                        break;
-                    case 4:
+                int radioButtonID = radioGroup.getCheckedRadioButtonId();
+                View radioButton = radioGroup.findViewById(radioButtonID);
+                int idx = radioGroup.indexOfChild(radioButton);
+                switch (idx) {
+                    case 0:
                         MainActivity.this.m_daikinModel.mode = DaikinModel.DaikinParamValue.Mode.HOT;
                         break;
-                    case 6:
+                    case 1:
+                        MainActivity.this.m_daikinModel.mode = DaikinModel.DaikinParamValue.Mode.COLD;
+                        break;
+                    case 2:
                         MainActivity.this.m_daikinModel.mode = DaikinModel.DaikinParamValue.Mode.FAN;
                         break;
                 }
