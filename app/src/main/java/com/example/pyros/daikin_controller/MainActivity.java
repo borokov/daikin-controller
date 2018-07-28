@@ -308,7 +308,7 @@ class SendParams extends AsyncTask<Void,Void,Void>
     }
 
     protected void onPostExecute(Void result) {
-        m_mainActivity.sync(m_daikinModel);
+        new GetParams(m_daikinModel, m_httpController, m_mainActivity).execute();
     }
 
     private DaikinModel m_daikinModel;
