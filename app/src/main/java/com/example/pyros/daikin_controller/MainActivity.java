@@ -39,6 +39,9 @@ public class MainActivity extends AppCompatActivity
 
     protected RadioGroup m_rbMode;
 
+    protected CheckBox m_checkBox_LR_fanDir;
+    protected CheckBox m_checkBox_UD_fanDir;
+
     final float MIN_SLIDER_TEMP = 18;
     final float MAX_SLIDER_TEMP = 30;
 
@@ -65,6 +68,9 @@ public class MainActivity extends AppCompatActivity
         m_txtCurTemp = (TextView)findViewById(R.id.txt_cur_temp);
         m_txtFanSpeed = (TextView)findViewById(R.id.txt_fanSpeed);
         m_rbMode = (RadioGroup) findViewById(R.id.rb_mode);
+
+         m_checkBox_LR_fanDir = (CheckBox)findViewById(R.id.cb_LR_fanDir);
+         m_checkBox_UD_fanDir =  (CheckBox)findViewById(R.id.cb_UD_fanDir);
 
         //-------------------------------------------------------------------------------
         // plug event
@@ -182,6 +188,32 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        m_checkBox_LR_fanDir.setOnCheckedChangeListener( new CheckBox.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if ( MainActivity.this.m_checkBox_UD_fanDir.isChecked() && MainActivity.this.m_checkBox_LR_fanDir.isChecked())
+                    MainActivity.this.m_daikinModel.fanDir = DaikinModel.DaikinParamValue.FanDir.ALL;
+                else if ( MainActivity.this.m_checkBox_LR_fanDir.isChecked() )
+                    MainActivity.this.m_daikinModel.fanDir = DaikinModel.DaikinParamValue.FanDir.HORIZONTAL;
+                else if ( MainActivity.this.m_checkBox_UD_fanDir.isChecked() )
+                    MainActivity.this.m_daikinModel.fanDir = DaikinModel.DaikinParamValue.FanDir.VERTICAL;
+                new SendParams(MainActivity.this.m_daikinModel, MainActivity.this.m_httpController, MainActivity.this).execute();
+            }
+        });
+
+        m_checkBox_UD_fanDir.setOnCheckedChangeListener( new CheckBox.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if ( MainActivity.this.m_checkBox_UD_fanDir.isChecked() && MainActivity.this.m_checkBox_LR_fanDir.isChecked())
+                    MainActivity.this.m_daikinModel.fanDir = DaikinModel.DaikinParamValue.FanDir.ALL;
+                else if ( MainActivity.this.m_checkBox_LR_fanDir.isChecked() )
+                    MainActivity.this.m_daikinModel.fanDir = DaikinModel.DaikinParamValue.FanDir.HORIZONTAL;
+                else if ( MainActivity.this.m_checkBox_UD_fanDir.isChecked() )
+                    MainActivity.this.m_daikinModel.fanDir = DaikinModel.DaikinParamValue.FanDir.VERTICAL;
+                new SendParams(MainActivity.this.m_daikinModel, MainActivity.this.m_httpController, MainActivity.this).execute();
+            }
+        });
+
         new GetParams(m_daikinModel, m_httpController, this).execute();
     }
 
@@ -264,6 +296,9 @@ public class MainActivity extends AppCompatActivity
 
         int progress = Math.round( 100*(daikinModel.targetTemp - (float)MIN_SLIDER_TEMP) / ((float)MAX_SLIDER_TEMP - (float)MIN_SLIDER_TEMP) );
         m_sliderTemperature.setProgress(progress);
+
+        m_checkBox_LR_fanDir.setChecked(daikinModel.fanDir == DaikinModel.DaikinParamValue.FanDir.HORIZONTAL || daikinModel.fanDir == DaikinModel.DaikinParamValue.FanDir.ALL);
+        m_checkBox_UD_fanDir.setChecked(daikinModel.fanDir == DaikinModel.DaikinParamValue.FanDir.VERTICAL || daikinModel.fanDir == DaikinModel.DaikinParamValue.FanDir.ALL);
     }
 }
 
