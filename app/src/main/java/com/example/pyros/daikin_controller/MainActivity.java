@@ -207,6 +207,7 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    /** Sync GUI with provided daikinModel */
     public void sync(DaikinModel daikinModel)
     {
         m_switchOnOff.setChecked(daikinModel.status == DaikinModel.DaikinParamValue.Status.ON);
@@ -266,7 +267,7 @@ public class MainActivity extends AppCompatActivity
     }
 }
 
-
+/** Async GetParams of real device and update GUI */
 class GetParams extends AsyncTask<Void,Void,Void>
 {
     GetParams(DaikinModel daikinModel_, DaikinHTTPController httpController_, MainActivity mainActivity_)
@@ -293,7 +294,7 @@ class GetParams extends AsyncTask<Void,Void,Void>
     private MainActivity m_mainActivity;
 }
 
-
+/** Async SendParams of DaikinModel given in constructed to real device */
 class SendParams extends AsyncTask<Void,Void,Void>
 {
     SendParams(DaikinModel daikinModel_, DaikinHTTPController httpController_, MainActivity mainActivity_)
